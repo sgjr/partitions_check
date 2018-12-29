@@ -7,6 +7,9 @@ import logging
 import json
 import urllib.request
 import pymysql
+import ssl
+
+ssl._create_default_https_context = ssl._create_unverified_context
 '''
 检测分区情况
 可用分区小于一个月自动增加一个月的分区
@@ -169,6 +172,8 @@ for db in TabletoCheck.keys():
                 add_partition_sql = '''alter table %s add partition (partition %s VALUES LESS THAN (unix_timestamp('%s')) ENGINE = InnoDB);'''\
                                 %(tb, add_partition_name, nexttime.strftime('%Y-%m-%d %H:%M:%S'))
                 execute(add_partition_sql,db)
+                add_message_list.append(add_partition_name)
+
 sendDD('\n'.join(drop_message_list) + '\n' + '\n'.join(add_message_list))
 
 log.info("------------" + ' END ' + "------------")
